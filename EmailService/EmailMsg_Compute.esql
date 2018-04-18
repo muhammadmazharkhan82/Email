@@ -20,7 +20,7 @@
 
  	CREATE FUNCTION Main() RETURNS BOOLEAN
  	BEGIN
-
+---This is my new change
  		DECLARE CompleteRequest , CompleteResponse , xmlRequest , xmlResponse CHARACTER;
  		DECLARE RequestCount INTEGER;
  		DECLARE strResponse CHARACTER;
