@@ -1,0 +1,15 @@
+
+
+
+
+CREATE COMPUTE MODULE MainFlow_Correl
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		--SET OutputRoot.MQMD.CorrelId = InputLocalEnvironment.WrittenDestination.MQ.DestinationData.msgId;
+		set OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+
+		RETURN TRUE;
+	END;
+
+END MODULE;

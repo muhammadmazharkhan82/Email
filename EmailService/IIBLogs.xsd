@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:complexType name="LogGenReqType">
+        <xsd:all>
+        	<xsd:element name="STAN" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="IIBServer" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="IIBBroker" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="IIBEG" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="ApplicationName" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="FunctionName" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="UserID" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="ChannelCode" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="RemoteAddress" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        	<xsd:element name="RequestData" type="xsd:anyType" minOccurs="0" maxOccurs="1"></xsd:element>
+            <xsd:element name="AdditionalParam" type="xsd:anyType" minOccurs="0" maxOccurs="1"></xsd:element>
+            <xsd:element name="ServerDateTime" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="LogGenReq" type="LogGenReqType"></xsd:element>
+
+    <xsd:complexType name="LogGenErrorType">
+    	<xsd:all>
+    		<xsd:element name="STAN" type="xsd:string" minOccurs="0"
+    			maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="IIBServer" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="IIBBroker" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="IIBEG" type="xsd:string" minOccurs="0"
+    			maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="ApplicationName" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="FunctionName" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="UserID" type="xsd:string" minOccurs="0"
+    			maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="ChannelCode" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="RemoteAddress" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="RequestData" type="xsd:anyType"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="ErrorMessage" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="ErrorTrace" type="xsd:anyType"
+    			minOccurs="0" maxOccurs="1" />
+    		<xsd:element name="AdditionalParam" type="xsd:anyType"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+            <xsd:element name="ErrorSource" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+            <xsd:element name="ServerDateTime" type="xsd:string"
+    			minOccurs="0" maxOccurs="1">
+    		</xsd:element>
+    	</xsd:all>
+
+    </xsd:complexType>
+
+    <xsd:element name="LogGenError" type="LogGenErrorType"></xsd:element>
+
+    <xsd:complexType name="LogGenRspType">
+     <xsd:all>
+     	<xsd:element name="STAN" type="xsd:string" minOccurs="0"
+     		maxOccurs="1">
+     	</xsd:element>
+            <xsd:element name="ApplicationName" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+            <xsd:element name="StatusCode" type="xsd:string" minOccurs="0"
+     		maxOccurs="1">
+     	</xsd:element>
+     	<xsd:element name="StatusDesc" type="xsd:string" minOccurs="0"
+     		maxOccurs="1">
+     	</xsd:element>
+     	<xsd:element name="ResponseData" type="xsd:anyType"
+     		minOccurs="0" maxOccurs="1">
+     	</xsd:element>
+     	<xsd:element name="AdditionalParam" type="xsd:anyType"
+     		minOccurs="0" maxOccurs="1">
+     	</xsd:element>
+     	<xsd:element name="ServerDateTime" type="xsd:string"
+     		minOccurs="0" maxOccurs="1">
+     	</xsd:element>
+     </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="LogGenRsp" type="LogGenRspType"></xsd:element>
+
+    <xsd:complexType name="LogGenEventType">
+        <xsd:all>
+        	<xsd:element name="STAN" type="xsd:string" minOccurs="0"
+        		maxOccurs="1">
+        	</xsd:element>
+        	<xsd:element name="EventSource" type="xsd:string"
+        		minOccurs="0" maxOccurs="1">
+        	</xsd:element>
+        	<xsd:element name="EventType" type="xsd:string"
+        		minOccurs="0" maxOccurs="1">
+        	</xsd:element>
+        	<xsd:element name="EventVal1" type="xsd:string"
+        		minOccurs="0" maxOccurs="1">
+        	</xsd:element>
+        	<xsd:element name="EventVal2" type="xsd:string"
+        		minOccurs="0" maxOccurs="1">
+        	</xsd:element>
+        	<xsd:element name="EventVal3" type="xsd:string"
+        		minOccurs="0" maxOccurs="1">
+        	</xsd:element>
+            <xsd:element name="Remarks" type="xsd:string" minOccurs="0" maxOccurs="1"></xsd:element>
+            <xsd:element name="ServerDateTime" type="xsd:string"
+        		minOccurs="0" maxOccurs="1">
+        	</xsd:element>
+        </xsd:all>
+        
+    </xsd:complexType>
+
+    <xsd:element name="LogGenEvent" type="LogGenEventType"></xsd:element>
+</xsd:schema>

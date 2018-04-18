@@ -1,0 +1,74 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="EmailWebEx">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element type="xs:string" name="Function"/>
+        <xs:element type="xs:string" name="UserID"/>
+        <xs:element type="xs:string" name="Password"/>
+        <xs:element type="xs:string" name="ChannelCode"/>
+        <xs:element type="xs:string" name="CurrentDateTime"/>
+        <xs:element type="xs:string" name="BatchReferenceNo"/>
+        <xs:element name="Env">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="EmailList">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Email" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="EmailRefID"/>
+                          <xs:element type="xs:string" name="Subject"/>
+                          <xs:element type="xs:string" name="Dept"/>
+                          <xs:element name="Recipients">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="Recipient" maxOccurs="unbounded" minOccurs="0"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="CCs">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="CC"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="BCCs">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="BCC"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element type="xs:string" name="ContentType"/>
+                          <xs:element type="xs:string" name="content"/>
+                          <xs:element name="attachments">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="attachment" maxOccurs="unbounded" minOccurs="0">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element type="xs:string" name="filename"/>
+                                      <xs:element type="xs:string" name="filetype"/>
+                                      <xs:element type="xs:string" name="fileDataType"/>
+                                      <xs:element type="xs:string" name="filedata"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

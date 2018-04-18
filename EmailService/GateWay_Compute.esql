@@ -1,0 +1,116 @@
+
+
+CREATE COMPUTE MODULE GateWay_CatchFailure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusCode = 'IIB082';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusDesc = 'EmailWebEx - General Failure';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.STAN = Environment.Variables.STAN;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE GateWay_Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--SET OutputRoot = NULL;		
+		SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = '200';
+		SET InputLocalEnvironment.Destination.HTTP.ReplyStatusCode = '200';
+		
+		IF Environment.Variables.STAN IS NULL THEN
+			SET Environment.Variables.STAN = UUIDASCHAR;
+		END IF; 
+		
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusCode = 'IIB081';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusDesc = 'EmailWebExReponse WebService TimeOut';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.STAN = Environment.Variables.STAN;
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE GateWay_RouteFailure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		  
+		SET Environment.Variables.STAN = UUIDASCHAR;
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusCode = 'IIB084';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusDesc = 'EmailWebEx - Invalid HTTP method';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.STAN = Environment.Variables.STAN;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE GateWay_Log_Failure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+		DECLARE messageNumber CHARACTER;
+	   	DECLARE messageText CHARACTER;	
+	   	
+	   	IF  Environment.Variables.STAN IS NULL THEN
+			SET Environment.Variables.STAN = UUIDASCHAR;
+	   	END IF;
+	   	declare ptrException reference to InputExceptionList.*[1];
+		WHILE lastmove(ptrException) DO
+			IF ptrException.Number is not null THEN
+	    		SET messageNumber = ptrException.Number;
+	    		SET messageText = ptrException.Text;
+			END IF;
+			move ptrException lastchild;
+		END WHILE; 
+		
+		DECLARE refIn reference to InputRoot.HTTPInputHeader;
+		DECLARE RemoteADD CHARACTER refIn."X-Remote-Addr";
+		DECLARE pServerAdd CHARACTER refIn."X-Server-Name";
+		
+		DECLARE blobInputMessage BLOB;
+		DECLARE blobPwd BLOB;
+		DECLARE blobEncPwd BLOB;
+		SET blobInputMessage = ASBITSTREAM(InputRoot.XMLNSC ENCODING InputProperties.Encoding CCSID InputProperties.CodedCharSetId OPTIONS FolderBitStream);
+		
+----		SET blobPwd = CAST('<AccessCode1>' || InputRoot.XMLNSC.EmailWebEx.AccessCode1 AS BLOB CCSID 1208);
+----		SET blobEncPwd = CAST ('<AccessCode1>**********' AS BLOB CCSID 1208);
+----		SET blobInputMessage = REPLACE(blobInputMessage, blobPwd, blobEncPwd);
+----		
+----		SET blobPwd = CAST('<AccessCode2>' || InputRoot.XMLNSC.EmailWebEx.AccessCode2 AS BLOB CCSID 1208);
+----		SET blobEncPwd = CAST ('<AccessCode2>**********' AS BLOB CCSID 1208);
+----		SET blobInputMessage = REPLACE(blobInputMessage, blobPwd, blobEncPwd);
+----		
+----		SET blobPwd = CAST('<AccessCode3>' || InputRoot.XMLNSC.EmailWebEx.AccessCode3 AS BLOB CCSID 1208);
+----		SET blobEncPwd = CAST ('<AccessCode3>**********' AS BLOB CCSID 1208);
+----		SET blobInputMessage = REPLACE(blobInputMessage, blobPwd, blobEncPwd);
+		
+		SET OutputRoot.XMLNSC.LogGenError.STAN = Environment.Variables.STAN;
+		SET OutputRoot.XMLNSC.LogGenError.IIBServer = pServerAdd;
+		SET OutputRoot.XMLNSC.LogGenError.IIBBroker = BrokerName;
+		SET OutputRoot.XMLNSC.LogGenError.IIBEG = ExecutionGroupLabel;
+		SET OutputRoot.XMLNSC.LogGenError.ApplicationName = ApplicationLabel;
+		SET OutputRoot.XMLNSC.LogGenError.FunctionName = FIELDNAME(InputBody.*[LAST]);
+		SET OutputRoot.XMLNSC.LogGenError.UserID = 'COC';
+		SET OutputRoot.XMLNSC.LogGenError.ChannelCode = InputRoot.XMLNSC.EmailWebEx.HOST || ':' || InputRoot.XMLNSC.EmailWebEx.Function;
+		SET OutputRoot.XMLNSC.LogGenError.RemoteAddress = RemoteADD;
+		SET OutputRoot.XMLNSC.LogGenError.RequestData = blobInputMessage;
+		SET OutputRoot.XMLNSC.LogGenError.ErrorMessage = messageNumber || ':' || messageText;
+		SET OutputRoot.XMLNSC.LogGenError.ErrorTrace = InputExceptionList;
+		SET OutputRoot.XMLNSC.LogGenError.AdditionalParam = '';
+		SET OutputRoot.XMLNSC.LogGenError.ErrorSource = 'EmailWebEx.Failure';
+		SET OutputRoot.XMLNSC.LogGenError.ServerDateTime = CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyy/MM/dd hh:mm:ss.SSSSSS');
+		RETURN TRUE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE GateWay_LOG_Response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+		SET OutputRoot.XMLNSC.LogGenRsp.STAN = Environment.Variables.STAN;
+		SET OutputRoot.XMLNSC.LogGenRsp.ApplicationName = 'EmailWebEx';
+		SET OutputRoot.XMLNSC.LogGenRsp.StatusCode = InputRoot.XMLNSC.EmailWebEx.StatusCode;
+		SET OutputRoot.XMLNSC.LogGenRsp.StatusDesc = InputRoot.XMLNSC.EmailWebEx.StatusDesc;
+		SET OutputRoot.XMLNSC.LogGenRsp.ResponseData = InputRoot.XMLNSC;
+		SET OutputRoot.XMLNSC.LogGenRsp.AdditionalParam = '';
+		SET OutputRoot.XMLNSC.LogGenRsp.ServerDateTime = CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyy/MM/dd hh:mm:ss.SSSSSS');
+		RETURN TRUE;
+	END;
+END MODULE;

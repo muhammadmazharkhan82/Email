@@ -1,0 +1,55 @@
+
+
+CREATE COMPUTE MODULE ROUTE
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE InputFunction CHARACTER;
+		DECLARE InputAgentType CHARACTER;
+
+		SET InputFunction = FIELDNAME(InputBody.*[LAST]);
+
+		IF InputFunction = 'GetPaymentGen' THEN
+			SET InputAgentType = InputRoot.XMLNSC.GetPaymentGen.PIN;
+		ELSEIF InputFunction = 'ConfirmPaymentGen' THEN
+			SET InputAgentType = InputRoot.XMLNSC.ConfirmPaymentGen.PIN;
+		ELSE
+			SET InputAgentType = 'Invalid Type';
+		END IF;
+
+		IF SUBSTRING(InputAgentType FROM 1 FOR 1)='X' THEN
+
+			SET Environment.Variables.varRouting = 'XOOM';
+			SET OutputRoot = InputRoot;
+
+		ELSE
+			SET Environment.Variables.varRouting = 'IME';
+			SET OutputRoot = InputRoot;
+		END IF;
+
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE MainFlow_InvalidFunction
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.XMLNSC.COCWebExResponse.StatusCode = 'IIB085';
+		SET OutputRoot.XMLNSC.COCWebExResponse.StatusDesc = 'COCWebExResponse - Invalid Function';
+		SET OutputRoot.XMLNSC.COCWebExResponse.STAN = Environment.Variables.STAN;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE MainFlow_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

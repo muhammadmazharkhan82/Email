@@ -1,0 +1,38 @@
+
+
+PATH com.ubl.ibm.pk.utility;
+
+CREATE COMPUTE MODULE EmailMsg_Fault
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE MQ_User_ID CHARACTER;
+		DECLARE QueueName CHARACTER;
+		DECLARE RetCode,RetDesc, RequestType CHARACTER;
+
+		SET Environment.LogClass = 'EMAIL';
+
+		Set RetCode = 'IIB062';
+		Set RetDesc = 'System Error';		
+
+
+		DECLARE STAN CHARACTER COALESCE(Environment.STAN,'');
+
+		if STAN = '' then
+			set STAN = UUIDASCHAR;
+		end if;
+
+
+		set OutputRoot.XMLNSC.EmailWebExResponse.StatusCode = RetCode;
+		set OutputRoot.XMLNSC.EmailWebExResponse.StatusDesc = RetDesc;
+		set OutputRoot.XMLNSC.EmailWebExResponse.STAN = cast(COALESCE(Environment.Variables.STAN,'') as CHARACTER);
+		set OutputRoot.XMLNSC.EmailWebExResponse.BatchReferenceNo = cast(COALESCE(Environment.Variables.BatchReferenceNo,'') as CHARACTER);
+
+		Declare o_RspMsg CHARACTER CAST (ASBITSTREAM(OutputRoot.XMLNSC OPTIONS FolderBitStream ) AS CHAR ENCODING MQENC_NATIVE);
+
+		CALL LOGINFO((COALESCE(Environment.STAN,'') ||'|'||Cast(COALESCE(Environment.MsgId,'') as char)|| '|Fault|' || COALESCE(o_RspMsg,'')), COALESCE(Environment.LogClass,'App'));		
+
+
+		RETURN TRUE;
+	END;
+
+END MODULE;

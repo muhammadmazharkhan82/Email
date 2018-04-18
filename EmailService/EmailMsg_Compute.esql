@@ -1,0 +1,118 @@
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ path com.ubl.ibm.pk.utility;
+
+ CREATE COMPUTE MODULE EmailMsg_Compute
+
+ 	CREATE FUNCTION Main() RETURNS BOOLEAN
+ 	BEGIN
+
+ 		DECLARE CompleteRequest , CompleteResponse , xmlRequest , xmlResponse CHARACTER;
+ 		DECLARE RequestCount INTEGER;
+ 		DECLARE strResponse CHARACTER;
+ 		DECLARE i INTEGER 1;
+ 		Declare j INTEGER 1;
+ 		Declare Msg CHARACTER;
+ 		DECLARE b_Validate BOOLEAN;
+ 		DECLARE o_Return_Code , o_Return_Desc CHARACTER;
+
+ 		CALL SetEnvironment();
+
+ 		SET CompleteRequest = CAST(ASBITSTREAM(InputRoot.XMLNSC OPTIONS FolderBitStream) AS CHAR ENCODING MQENC_NATIVE);
+
+ 		CALL LOGINFO(COALESCE( Environment.Variables.STAN,'') || '|Request Received|' || COALESCE(CompleteRequest,'') ,'REQ' );
+
+ 		set RequestCount = CARDINALITY(InputRoot.XMLNSC.EmailWebEx.Env.EmailList.Email[]);
+
+ 		if RequestCount > 0 then
+
+ 			WHILE i <= RequestCount DO
+
+ 				SET xmlRequest = CAST(ASBITSTREAM(InputRoot.XMLNSC.EmailWebEx.Env.EmailList.Email[i] OPTIONS FolderBitStream) AS CHAR ENCODING MQENC_NATIVE);
+
+ 				CALL com.ubl.ibm.pk.utility.SendEmail(xmlRequest , CAST(Environment.Variables.STAN AS CHARACTER ) ) INTO xmlResponse;
+
+ 				set Environment.Variables.Rsp[i] = xmlResponse;
+
+ 				Set i = i+1;
+ 			END WHILE;
+
+
+ 			For src as Environment.Variables.Rsp[] DO
+ 				if Msg is null then
+ 					set Msg = cast(Environment.Variables.Rsp[j] as CHARACTER);
+ 				else
+ 					set Msg = Msg ||' '|| cast(Environment.Variables.Rsp[j] as CHARACTER);
+ 				end if;
+ 				set j = j+1;
+ 			end FOR;
+
+ 			if Msg is not null then
+ 				CALL PrepareValidXMLResponse(Msg ,CompleteResponse );
+ 			end if;
+
+ 		end if;
+
+ 		CALL LOGINFO(COALESCE( Environment.Variables.STAN,'') || '|Response Received|' || COALESCE(CompleteResponse , '') ,'RESP' );
+
+ 		RETURN TRUE;
+ 	END;
+
+ 	CREATE FUNCTION PrepareValidXMLResponse(IN xmlRequest CHARACTER , OUT xmlResponse CHARACTER)
+
+ 	Begin
+
+ 		DECLARE Msg CHARACTER;
+ 		DECLARE RequestMsg ROW;
+
+ 		set Msg = '<EmailRsp>'||xmlRequest||'</EmailRsp>';
+
+ 		CREATE LASTCHILD OF RequestMsg DOMAIN('XMLNSC') PARSE(cast(Msg as BLOB ENCODING MQENC_NATIVE),
+ 		InputProperties.Encoding,
+ 		InputProperties.CodedCharSetId,'','','',FolderBitStream);
+
+ 		Set OutputRoot.XMLNSC.EmailWebExResponse = null;
+
+ 		SET OutputRoot.XMLNSC.EmailWebExResponse.BatchReferenceNo = Environment.Variables.BatchReferenceNo;
+ 		SET OutputRoot.XMLNSC.EmailWebExResponse.STAN = Environment.Variables.STAN;
+ 		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusCode = 'IIB100';
+ 		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusDesc= 'SUCCESS';
+
+ 		SET OutputRoot.XMLNSC.EmailWebExResponse.HostResponse = RequestMsg;
+
+ 		SET xmlResponse = CAST(ASBITSTREAM(OutputRoot.XMLNSC.EmailWebExResponse.HostResponse OPTIONS FolderBitStream) AS CHAR ENCODING MQENC_NATIVE);
+
+ 	End;
+
+ 	CREATE FUNCTION SetEnvironment()
+
+ 	Begin
+ 		--SET Environment.Variables.LogClass = 'EMAIL';
+ 		SET Environment.Variables.BatchReferenceNo =COALESCE(InputRoot.XMLNSC.EmailWebEx.BatchReferenceNo , '');
+ 		SET Environment.Variables.STAN = UUIDASCHAR;
+ 		SET Environment.Variables.RequestTimestamp= CURRENT_TIMESTAMP;
+ 		--SET Environment.UserFunction = DECRYPT(GETPROPERTY('PARAM_1')); --USER_FUNCTION
+ 		SET Environment.Variables.UserFunction = GETPROPERTY('PARAM_1'); --USER_FUNCTION
+ 		SET Environment.Variables.UserId = GETPROPERTY('PARAM_2'); --USER_ID
+ 		SET Environment.Variables.Password = GETPROPERTY('PARAM_3'); --PASSWORD
+
+ 	End;
+
+
+
+ END MODULE;
+ 

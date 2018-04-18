@@ -1,0 +1,16 @@
+
+
+
+
+CREATE COMPUTE MODULE MainFlow_Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusCode = 'IIB081';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.StatusDesc = 'EmailWebExReponse Queue TimeOut';
+		SET OutputRoot.XMLNSC.EmailWebExResponse.STAN = Environment.Variables.STAN;
+
+		RETURN TRUE;
+	END;
+
+END MODULE;

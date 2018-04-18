@@ -1,0 +1,30 @@
+
+CREATE COMPUTE MODULE TransactionInquiry_LOG_Request
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN	
+		
+		DECLARE refIn reference to InputRoot.HTTPInputHeader;
+		DECLARE RemoteADD CHARACTER refIn."X-Remote-Addr";
+		DECLARE pServerAdd CHARACTER refIn."X-Server-Name";
+		
+		SET Environment.Variables.STAN = UUIDASCHAR;
+		
+		SET OutputRoot.XMLNSC.LogGenReq.STAN = Environment.Variables.STAN;
+		SET OutputRoot.XMLNSC.LogGenReq.IIBServer = pServerAdd;
+		SET OutputRoot.XMLNSC.LogGenReq.IIBBroker = BrokerName;
+		SET OutputRoot.XMLNSC.LogGenReq.IIBEG = ExecutionGroupLabel;
+		SET OutputRoot.XMLNSC.LogGenReq.ApplicationName = ApplicationLabel;
+		SET OutputRoot.XMLNSC.LogGenReq.FunctionName = FIELDNAME(InputBody.*[LAST]);
+		SET OutputRoot.XMLNSC.LogGenReq.UserID = 'COC';
+		SET OutputRoot.XMLNSC.LogGenReq.ChannelCode = InputRoot.XMLNSC.COCWebEx.HOST || ':' || InputRoot.XMLNSC.COCWebEx.Function;
+		SET OutputRoot.XMLNSC.LogGenReq.RemoteAddress = RemoteADD;
+		SET OutputRoot.XMLNSC.LogGenReq.RequestData = InputRoot.XMLNSC;
+		SET OutputRoot.XMLNSC.LogGenReq.RequestData.COCWebEx.AccessCode1 = '********';
+		SET OutputRoot.XMLNSC.LogGenReq.RequestData.COCWebEx.AccessCode2 = '********';
+		SET OutputRoot.XMLNSC.LogGenReq.RequestData.COCWebEx.AccessCode3 = '********';
+		SET OutputRoot.XMLNSC.LogGenReq.RequestData.COCWebEx.AccessCode4 = '********';
+		SET OutputRoot.XMLNSC.LogGenReq.AdditionalParam = InputRoot.XMLNSC.COCWebEx.TrackingNumber; 
+		SET OutputRoot.XMLNSC.LogGenReq.ServerDateTime = CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyy/MM/dd hh:mm:ss.SSSSSS');
+		RETURN TRUE;
+	END;
+END MODULE;
